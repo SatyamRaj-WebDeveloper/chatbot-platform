@@ -1,10 +1,10 @@
-'use client';
-import { ChatProvider } from '../../context/chatContext.js';
+// src/app/dashboard/layout.js
+import { ChatProvider } from '../../context/ChatContext.js';
 
 export default function DashboardLayout({ children }) {
   return (
     <ChatProvider>
-      <div className="min-h-screen bg-[#050505] text-white">
+      <div className="bg-[#050505] min-h-screen">
         {children}
       </div>
     </ChatProvider>
