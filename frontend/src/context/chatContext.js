@@ -30,7 +30,7 @@ export function ChatProvider({ children }) {
  // src/context/ChatContext.js
  const updateConfig = async (newConfig) => {
   try {
-      const response = await fetch('http://localhost:5000/api/widget/save', {
+      const response = await fetch('https://chatbot-platform-sgmo.onrender.com/api/widget/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...newConfig, userId: 'user_1' }) 

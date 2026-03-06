@@ -1,7 +1,7 @@
 'use client';
-import ChatWidget from '@/components/widjet/ChatWidget';
-import DashboardPage from '@/components/dashboard/page';
-import { ChatProvider } from '@/context/ChatContext';
+// import ChatWidget from '@/components/widjet/ChatWidget';
+// import DashboardPage from '@/components/dashboard/page';
+// import { ChatProvider } from '@/context/ChatContext';
 import Link from 'next/link';
 import { Bot, Zap, Shield, ArrowRight , Palette } from 'lucide-react';
 

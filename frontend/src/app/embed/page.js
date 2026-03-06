@@ -2,7 +2,7 @@
 import { useEffect, Suspense , useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ChatWidget from '../../components/widjet/ChatWidget.js';
-import { ChatProvider, useChatConfig } from '../../context/ChatContext.js';
+import { ChatProvider, useChatConfig } from '../../../src/context/ChatContext.js';
 
 // This component is now safely inside the Provider
 function EmbedContent() {
@@ -20,7 +20,7 @@ function EmbedContent() {
     const fetchBotData = async () => {
       if (!botId) return;
       try {
-        const response = await fetch(`http://localhost:5000/api/widget/config/${botId}`);
+        const response = await fetch(`https://chatbot-platform-sgmo.onrender.com/api/widget/config/${botId}`);
         const data = await response.json();
         
         if (data) {

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useChatConfig } from '@/context/ChatContext';
+import { useChatConfig } from '../../../src/context/ChatContext.js';
 import ReactMarkdown from 'react-markdown';
 import { Send, X, MessageCircle, Loader2 } from 'lucide-react';
 
@@ -41,7 +41,7 @@ export default function ChatWidget({ isPreview = false, forceOpen = false }) {
     setIsTyping(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/chat', {
+      const res = await fetch('https://chatbot-platform-sgmo.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input })
