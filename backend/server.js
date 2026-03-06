@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:3000', 'null'], // 'null' allows opening local .html files
+    origin: ['https://chatbot-platform-henna.vercel.app/', 'null'], // 'null' allows opening local .html files
     methods: ['GET', 'POST'],
     credentials: true
   }));// Critical for the embeddable script to call your API
