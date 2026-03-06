@@ -5,10 +5,12 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: ['https://chatbot-platform-henna.vercel.app', 'null'], // 'null' allows opening local .html files
+    origin: ['https://chatbot-platform-henna.vercel.app',
+        'http://localhost:3000',
+        'null'], // 'null' allows opening local .html files
     methods: ['GET', 'POST'],
     credentials: true
-  }));// Critical for the embeddable script to call your API
+}));// Critical for the embeddable script to call your API
 app.use(express.json());
 
 // Database Connection
@@ -24,8 +26,8 @@ app.post('/api/chat', (req, res) => {
     const { message } = req.body;
     // Improvement: Simple keyword logic for a "smarter" feel
     let reply = "I'm a mock bot. You asked: " + message;
-    if(message.toLowerCase().includes("delta4")) reply = "Delta4 Infotech is a great place to work!";
-    
+    if (message.toLowerCase().includes("delta4")) reply = "Delta4 Infotech is a great place to work!";
+
     setTimeout(() => res.json({ reply }), 1000);
 });
 
