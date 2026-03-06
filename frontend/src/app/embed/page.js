@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense , useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ChatWidget from '../../components/widjet/ChatWidget.js';
 import { ChatProvider, useChatConfig } from '../../context/ChatContext.js';
@@ -8,35 +8,41 @@ import { ChatProvider, useChatConfig } from '../../context/ChatContext.js';
 function EmbedContent() {
   const searchParams = useSearchParams();
   const botId = searchParams.get('id');
-  
-  // Accessing the context functions
   const { setConfig } = useChatConfig();
+  const [ready, setReady] = useState(false);
+
+  // CRITICAL FIX: Expand the iframe IMMEDIATELY on mount
+  useEffect(() => {
+    window.parent.postMessage('expand_chatbot', '*');
+  }, []);
 
   useEffect(() => {
     const fetchBotData = async () => {
       if (!botId) return;
-      
       try {
         const response = await fetch(`http://localhost:5000/api/widget/config/${botId}`);
         const data = await response.json();
         
-        if (data && setConfig) {
-          // Dynamic update based on the database ID
+        if (data) {
           setConfig({
             botName: data.botName,
             welcomeMessage: data.welcomeMessage,
             mainColor: data.mainColor,
-            position: data.position,
+            position: data.position || 'right',
             id: data._id
           });
+          setReady(true);
         }
       } catch (err) {
-        console.error("Error fetching bot config:", err);
+        console.error("Fetch error:", err);
+        setReady(true); // Default to "Support Bot" if fetch fails so the user sees something
       }
     };
-
     fetchBotData();
   }, [botId, setConfig]);
+
+  // Use a full-size transparent div while loading to maintain the iframe size
+  if (!ready) return <div className="w-full h-full bg-transparent" />;
 
   return (
     <div className="bg-transparent w-full h-full">

@@ -15,9 +15,15 @@ export function ChatProvider({ children }) {
 
   // State Persistence Improvement: Load from localStorage
   useEffect(() => {
-    const savedConfig = localStorage.getItem('chatbot_config');
-    if (savedConfig) {
-      setConfig(JSON.parse(savedConfig));
+    // Check if we are currently in an 'embed' view by looking at the URL
+    const isEmbed = window.location.pathname.includes('/embed');
+    
+    // Only load from localStorage if we AREN'T embedding (i.e., we are in the Dashboard)
+    if (!isEmbed) {
+      const savedConfig = localStorage.getItem('chatbot_config');
+      if (savedConfig) {
+        setConfig(JSON.parse(savedConfig));
+      }
     }
   }, []);
 
@@ -48,7 +54,7 @@ export function ChatProvider({ children }) {
 };
 
   return (
-    <ChatContext.Provider value={{ config, updateConfig }}>
+    <ChatContext.Provider value={{ config,setConfig,  updateConfig }}>
       {children}
     </ChatContext.Provider>
   );
