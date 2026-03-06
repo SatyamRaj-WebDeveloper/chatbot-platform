@@ -3,7 +3,7 @@
   const botId = scriptTag.getAttribute('data-id');
   
   // Change this to your actual production URL (e.g., https://your-app.vercel.app)
-  const PLATFORM_URL = "http://localhost:3000"; 
+  const PLATFORM_URL = "https://chatbot-platform-henna.vercel.app"; 
   
   const iframe = document.createElement('iframe');
   iframe.src = `${PLATFORM_URL}/embed?id=${botId}`;
@@ -23,7 +23,7 @@
   // 2. Communication: Listen for "expand" or "close" events from the iframe
   window.addEventListener('message', (event) => {
     // Only accept messages from your platform
-    if (event.origin !== "http://localhost:3000") return;
+    if (event.origin !== PLATFORM_URL) return;
     if (event.data === 'expand_chatbot') {
       // Reduce from 400px to 360px for a cleaner look
       iframe.style.width = '360px'; 
