@@ -1,18 +1,27 @@
 'use client';
-import { useState, useEffect } from 'react'; // Added useState and useEffect
+import { useState, useEffect } from 'react';
 import { useChatConfig } from '@/context/ChatContext';
 import { Settings, MessageSquare, Palette, Code, Layout, BarChart3, Copy, Check } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { config, updateConfig } = useChatConfig();
+  const { config, updateConfig, setConfig } = useChatConfig();
   const [copiedId, setCopiedId] = useState(false);
 
-  // Requirement Met: Basic Analytics Operation
-  // In a real app, these would come from your MongoDB aggregation
-  const stats = {
-    conversations: 1204,
-    avgMessages: 6.4
-  };
+  // 1. Local state to "buffer" typing so it's smooth
+  const [localConfig, setLocalConfig] = useState({
+    botName: config.botName,
+    welcomeMessage: config.welcomeMessage
+  });
+
+  // 2. Sync local state when the bot config loads initially
+  useEffect(() => {
+    setLocalConfig({
+      botName: config.botName,
+      welcomeMessage: config.welcomeMessage
+    });
+  }, [config.id]);
+
+  const stats = { conversations: 1204, avgMessages: 6.4 };
 
   const copyToClipboard = (text, isId = false) => {
     navigator.clipboard.writeText(text);
@@ -22,9 +31,20 @@ export default function DashboardPage() {
     }
   };
 
+  // 3. Optimized Handler: Instant local update + Preview update
+  const handleTyping = (e) => {
+    const { name, value } = e.target;
+    
+    // Update local UI immediately for zero lag
+    setLocalConfig(prev => ({ ...prev, [name]: value }));
+    
+    // Update global state ONLY for the Live Preview (does not call API)
+    setConfig(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
-
+      
       {/* 1. Configuration Column */}
       <div className="space-y-8">
         <header>
@@ -41,9 +61,11 @@ export default function DashboardPage() {
             <label className="block text-sm font-medium text-gray-400">Bot Name</label>
             <input
               type="text"
+              name="botName"
               placeholder="e.g. Support Bot"
-              value={config.botName}
-              onChange={(e) => updateConfig({ botName: e.target.value })}
+              value={localConfig.botName} // Use localConfig state
+              onChange={handleTyping}
+              onBlur={() => updateConfig({ botName: localConfig.botName })} // Save to DB on blur
               className="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-blue-500 text-white transition-all"
             />
           </div>
@@ -51,28 +73,37 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-400">Welcome Message</label>
             <textarea
+              name="welcomeMessage"
               rows="2"
-              value={config.welcomeMessage}
-              onChange={(e) => updateConfig({ welcomeMessage: e.target.value })}
+              value={localConfig.welcomeMessage} // Use localConfig state
+              onChange={handleTyping}
+              onBlur={() => updateConfig({ welcomeMessage: localConfig.welcomeMessage })} // Save to DB on blur
               className="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-blue-500 text-white transition-all resize-none"
             />
           </div>
 
           <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-400">Main Theme Color</label>
-            <div className="flex gap-4 items-center">
-              <input
-                type="color"
-                value={config.mainColor}
-                onChange={(e) => updateConfig({ mainColor: e.target.value })}
-                className="w-12 h-12 bg-transparent border-none outline-none cursor-pointer rounded-full"
-              />
-              <span className="font-mono text-sm text-gray-500 uppercase tracking-widest">{config.mainColor}</span>
-            </div>
-          </div>
+  <label className="block text-sm font-medium text-gray-400">Main Theme Color</label>
+  <div className="flex gap-4 items-center">
+    <input
+      type="color"
+      value={config.mainColor}
+      onChange={(e) => {
+        const newColor = e.target.value;
+        // 1. Update the UI state IMMEDIATELY for the Live Preview
+        setConfig(prev => ({ ...prev, mainColor: newColor }));
+        
+        // 2. Optional: Only call the DB save if you aren't sliding the picker too fast
+        updateConfig({ mainColor: newColor });
+      }}
+      className="w-12 h-12 bg-transparent border-none outline-none cursor-pointer rounded-full"
+    />
+    <span className="font-mono text-sm text-gray-500 uppercase tracking-widest">{config.mainColor}</span>
+  </div>
+</div>
         </section>
 
-        {/* 2. Dynamic Analytics Section */}
+        {/* 2. Bot Performance Section */}
         <section className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl space-y-6">
           <div className="flex items-center gap-3 text-orange-500 font-mono text-sm tracking-widest uppercase">
             <BarChart3 size={16} /> Bot Performance
@@ -89,7 +120,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* 3. Improved Snippet Generation */}
+        {/* 3. Installation Snippet Section */}
         <section className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-green-500 font-mono text-sm tracking-widest uppercase">
@@ -103,9 +134,6 @@ export default function DashboardPage() {
               {copiedId ? "ID Copied!" : "Copy Bot ID"}
             </button>
           </div>
-          
-          <p className="text-xs text-gray-500 italic">Inject this into any website via a single script tag.</p>
-          
           <div className="relative group">
             <div className="bg-black p-4 rounded-xl border border-white/10 font-mono text-[10px] md:text-xs overflow-x-auto text-gray-400 leading-relaxed">
               <span className="text-gray-600">&lt;script</span>
@@ -113,12 +141,6 @@ export default function DashboardPage() {
               <span className="text-blue-400"> data-id</span>=<span className="text-green-300">"{config.id}"</span>
               <span className="text-gray-600">&gt;&lt;/script&gt;</span>
             </div>
-            <button 
-               onClick={() => copyToClipboard(`<script src="http://localhost:3000/widget.js" data-id="${config.id}"></script>`)}
-               className="absolute top-2 right-2 p-2 bg-white/5 rounded-md hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <Copy size={14} className="text-gray-400" />
-            </button>
           </div>
         </section>
       </div>
