@@ -1,5 +1,5 @@
 // src/app/dashboard/layout.js
-import { ChatProvider } from '../../../src/context/ChatContext.js';
+import { ChatProvider } from '@/context/ChatContext.js';
 
 export default function DashboardLayout({ children }) {
   return (

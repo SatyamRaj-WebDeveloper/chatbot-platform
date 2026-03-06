@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { useChatConfig } from '../../../src/context/ChatContext.js';
+import { useChatConfig } from '@/context/ChatContext.js';
 import ReactMarkdown from 'react-markdown';
 import { Send, X, MessageCircle, Loader2 } from 'lucide-react';
 

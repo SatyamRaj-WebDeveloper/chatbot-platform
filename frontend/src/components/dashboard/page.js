@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react'; // Added useState and useEffect
-import { useChatConfig } from '../../../src/context/ChatContext.js';
+import { useChatConfig } from '@/context/ChatContext.js';
 import { Settings, MessageSquare, Palette, Code, Layout, BarChart3, Copy, Check } from 'lucide-react';
 
 export default function DashboardPage() {
