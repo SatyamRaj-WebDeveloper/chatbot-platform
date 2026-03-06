@@ -4,7 +4,11 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors()); // Critical for the embeddable script to call your API
+app.use(cors({
+    origin: ['http://localhost:3000', 'null'], // 'null' allows opening local .html files
+    methods: ['GET', 'POST'],
+    credentials: true
+  }));// Critical for the embeddable script to call your API
 app.use(express.json());
 
 // Database Connection

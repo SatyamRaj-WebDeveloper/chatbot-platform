@@ -22,27 +22,28 @@ export function ChatProvider({ children }) {
   }, []);
 
  // src/context/ChatContext.js
-const updateConfig = async (newConfig) => {
+ const updateConfig = async (newConfig) => {
   try {
-      // 1. Update local state immediately for "Live Preview"
-      setConfig(prev => ({ ...prev, ...newConfig }));
-
-      // 2. Persist to MongoDB
       const response = await fetch('http://localhost:5000/api/widget/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-              ...newConfig, 
-              userId: 'user_1' // Match the userId in your controller
-          })
+          body: JSON.stringify({ ...newConfig, userId: 'user_1' }) 
       });
-
-      if (!response.ok) throw new Error("Save failed");
+      const result = await response.json();
       
-      // 3. Optional: Also save to LocalStorage as a backup (Improvement)
-      localStorage.setItem('chatbot_config', JSON.stringify({ ...config, ...newConfig }));
+      if (result.success) {
+          // CRITICAL FIX: Update the 'id' in state with the MongoDB _id
+          setConfig({
+              ...result.data,
+              id: result.data._id // Map MongoDB _id to your config.id
+          });
+          localStorage.setItem('chatbot_config', JSON.stringify({
+              ...result.data,
+              id: result.data._id
+          }));
+      }
   } catch (err) {
-      console.error("Persistence Error:", err);
+      console.error("Save failed", err);
   }
 };
 
