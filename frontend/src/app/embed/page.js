@@ -2,7 +2,7 @@
 import { useEffect, Suspense , useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ChatWidget from '../../components/widjet/ChatWidget.js';
-import { ChatProvider, useChatConfig } from '@/context/ChatContext.js';
+import { ChatProvider, useChatConfig } from '@/context/ChatContext';
 
 // This component is now safely inside the Provider
 function EmbedContent() {
