@@ -24,7 +24,7 @@ exports.getConfig = async (req, res) => {
     try {
         const { id } = req.params;
         // FIX: Ensure you are searching by _id, not userId
-        const config = await Widjet.findById(id); 
+        const config = await Widget.findById(id); 
 
         if (!config) {
             return res.status(404).json({ message: "Bot configuration not found" });
