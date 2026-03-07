@@ -19,12 +19,18 @@ exports.saveConfig = async (req, res) => {
 };
 
 // Fetch Config for the Embeddable Widget
+// This is the public route called by test.html
 exports.getConfig = async (req, res) => {
     try {
-        const config = await Widget.findById(req.params.id);
-        if (!config) return res.status(404).json({ error: "Bot not found" });
-        res.status(200).json(config);
+        const { id } = req.params;
+        // FIX: Ensure you are searching by _id, not userId
+        const config = await Widjet.findById(id); 
+
+        if (!config) {
+            return res.status(404).json({ message: "Bot configuration not found" });
+        }
+        res.json(config);
     } catch (err) {
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 };

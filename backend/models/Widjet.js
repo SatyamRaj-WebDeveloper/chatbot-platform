@@ -13,6 +13,7 @@ const WidgetSchema = new mongoose.Schema({
     totalConversations: { type: Number, default: 0 },
     messagesSent: { type: Number, default: 0 }
   },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now }
 });
 

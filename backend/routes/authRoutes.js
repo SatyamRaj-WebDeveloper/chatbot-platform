@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // Register Route
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res ) => {
     try {
         const { email, password } = req.body;
         let user = await User.findOne({ email });
@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.json({ token, user: { id: user._id, email: user.email } });
     } catch (err) {
-        console.error("Registration Error:", err); // This shows in Render Logs
+        console.error("Registration Error:", err.message); // This shows in Render Logs
         res.status(500).json({ 
             success: false, 
             message: err.message, // This sends the exact error to the browser
