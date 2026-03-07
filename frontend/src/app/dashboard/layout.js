@@ -1,12 +1,21 @@
-// src/app/dashboard/layout.js
-import { ChatProvider } from '@/context/ChatContext';
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardLayout({ children }) {
-  return (
-    <ChatProvider>
-      <div className="bg-[#050505] min-h-screen">
-        {children}
-      </div>
-    </ChatProvider>
-  );
+  const [authorized, setAuthorized] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login'); // Boot them out if no token
+    } else {
+      setAuthorized(true);
+    }
+  }, [router]);
+
+  if (!authorized) return null; // Prevent UI flicker
+
+  return <>{children}</>;
 }

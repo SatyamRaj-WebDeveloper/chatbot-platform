@@ -1,27 +1,24 @@
 'use client';
-// import ChatWidget from '@/components/widjet/ChatWidget';
-// import DashboardPage from '@/components/dashboard/page';
-// import { ChatProvider } from '@/context/ChatContext';
 import Link from 'next/link';
-import { Bot, Zap, Shield, ArrowRight , Palette } from 'lucide-react';
+import { Bot, Zap, Shield, ArrowRight, Palette, UserPlus, LogIn } from 'lucide-react';
 
 export default function Home() {
   return (
     <div className="bg-[#050505] text-white min-h-screen font-sans selection:bg-blue-500">
-      {/* Simple Header */}
+      {/* Header Updated for Login */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
           <Bot className="text-blue-500" /> CHATFLOW
         </div>
         <Link 
-          href="/dashboard" 
-          className="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-all"
+          href="/login" 
+          className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-white/10 transition-all"
         >
-          Open Dashboard
+          <LogIn size={16} /> Login
         </Link>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section Updated for SignUp */}
       <main className="max-w-7xl mx-auto px-6 pt-20 pb-32 text-center md:text-left flex flex-col md:flex-row items-center gap-16">
         <div className="flex-1 space-y-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono uppercase tracking-widest">
@@ -35,14 +32,14 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
-              href="/dashboard" 
+              href="/signup" 
               className="group flex items-center justify-center gap-2 bg-blue-600 px-8 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-[0_0_30px_rgba(37,99,235,0.3)]"
             >
-              Get Started Free <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <UserPlus size={18} /> Get Started Free <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#features" className="flex items-center justify-center px-8 py-4 rounded-2xl font-bold border border-white/10 hover:bg-white/5 transition-all">
-              View Documentation
-            </a>
+            <Link href="/dashboard" className="flex items-center justify-center px-8 py-4 rounded-2xl font-bold border border-white/10 hover:bg-white/5 transition-all">
+              Go to Dashboard
+            </Link>
           </div>
         </div>
 

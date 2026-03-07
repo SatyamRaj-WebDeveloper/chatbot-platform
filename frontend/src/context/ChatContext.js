@@ -24,31 +24,25 @@ export function ChatProvider({ children }) {
   }, []);
 
   // UPDATED: Added shouldSave parameter to prevent fetch errors while typing
-  const updateConfig = async (newConfig, shouldSave = true) => {
-    // 1. Always update state for the Live Preview
-    setConfig(prev => ({ ...prev, ...newConfig }));
-
-    // 2. Only hit the Render API if shouldSave is true
-    if (shouldSave) {
-      try {
-        const response = await fetch('https://chatbot-platform-sgmo.onrender.com/api/widget/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...newConfig, userId: 'user_1' }) 
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-          const updatedData = {
-            ...result.data,
-            id: result.data._id // Map MongoDB _id to config.id
-          };
-          setConfig(updatedData);
-          localStorage.setItem('chatbot_config', JSON.stringify(updatedData));
-        }
-      } catch (err) {
-        console.error("Save failed", err); // This catches the "Failed to fetch"
-      }
+  const updateConfig = async (newConfig, authHeaders = {}) => {
+    try {
+      // Merge existing config with new changes locally for instant preview
+      const updated = { ...config, ...newConfig };
+      setConfig(updated);
+  
+      // Call the database with the Authorization header
+      const response = await fetch(`https://chatbot-platform-sgmo.onrender.com/api/widget/config/${config.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders // This passes the Bearer token from the dashboard
+        },
+        body: JSON.stringify(newConfig),
+      });
+  
+      if (!response.ok) throw new Error('Failed to update DB');
+    } catch (err) {
+      console.error("Update Error:", err);
     }
   };
 

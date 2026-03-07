@@ -1,19 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useChatConfig } from '@/context/ChatContext';
-import { Settings, MessageSquare, Palette, Code, Layout, BarChart3, Copy, Check } from 'lucide-react';
+import { Settings, MessageSquare, Palette, Code, Layout, BarChart3, Copy, Check, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation'; // Added for logout redirect
 
 export default function DashboardPage() {
   const { config, updateConfig, setConfig } = useChatConfig();
   const [copiedId, setCopiedId] = useState(false);
+  const router = useRouter();
 
-  // 1. Local state to "buffer" typing so it's smooth
   const [localConfig, setLocalConfig] = useState({
     botName: config.botName,
     welcomeMessage: config.welcomeMessage
   });
 
-  // 2. Sync local state when the bot config loads initially
   useEffect(() => {
     setLocalConfig({
       botName: config.botName,
@@ -23,6 +23,18 @@ export default function DashboardPage() {
 
   const stats = { conversations: 1204, avgMessages: 6.4 };
 
+  // --- NEW: Auth Header Helper ---
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
+  // -------------------------------
+
   const copyToClipboard = (text, isId = false) => {
     navigator.clipboard.writeText(text);
     if (isId) {
@@ -31,15 +43,17 @@ export default function DashboardPage() {
     }
   };
 
-  // 3. Optimized Handler: Instant local update + Preview update
   const handleTyping = (e) => {
     const { name, value } = e.target;
-
-    // Update local UI immediately for zero lag
     setLocalConfig(prev => ({ ...prev, [name]: value }));
-
-    // Update global state ONLY for the Live Preview (does not call API)
     setConfig(prev => ({ ...prev, [name]: value }));
+  };
+
+  // --- NEW: Protected Update Wrapper ---
+  const saveUpdate = (updateData) => {
+    // We pass the auth header to the updateConfig function from context
+    // Ensure your ChatContext.updateConfig is updated to accept headers
+    updateConfig(updateData, getAuthHeader());
   };
 
   return (
@@ -47,9 +61,17 @@ export default function DashboardPage() {
 
       {/* 1. Configuration Column */}
       <div className="space-y-8">
-        <header>
-          <h1 className="text-4xl font-bold tracking-tighter text-white">Bot Dashboard</h1>
-          <p className="text-gray-500 mt-2 text-sm md:text-base">Customize your chatbot's identity and behavior.</p>
+        <header className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tighter text-white">Bot Dashboard</h1>
+            <p className="text-gray-500 mt-2 text-sm md:text-base">Customize your chatbot's identity and behavior.</p>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 hover:bg-red-500/20 transition-all text-xs font-bold"
+          >
+            <LogOut size={14} /> Logout
+          </button>
         </header>
 
         <section className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl space-y-6">
@@ -62,10 +84,9 @@ export default function DashboardPage() {
             <input
               type="text"
               name="botName"
-              placeholder="e.g. Support Bot"
-              value={localConfig.botName} // Use localConfig state
+              value={localConfig.botName}
               onChange={handleTyping}
-              onBlur={() => updateConfig({ botName: localConfig.botName })} // Save to DB on blur
+              onBlur={() => saveUpdate({ botName: localConfig.botName })} // Protect with Auth
               className="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-blue-500 text-white transition-all"
             />
           </div>
@@ -75,9 +96,9 @@ export default function DashboardPage() {
             <textarea
               name="welcomeMessage"
               rows="2"
-              value={localConfig.welcomeMessage} // Use localConfig state
+              value={localConfig.welcomeMessage}
               onChange={handleTyping}
-              onBlur={() => updateConfig({ welcomeMessage: localConfig.welcomeMessage })} // Save to DB on blur
+              onBlur={() => saveUpdate({ welcomeMessage: localConfig.welcomeMessage })} // Protect with Auth
               className="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-blue-500 text-white transition-all resize-none"
             />
           </div>
@@ -90,11 +111,8 @@ export default function DashboardPage() {
                 value={config.mainColor}
                 onChange={(e) => {
                   const newColor = e.target.value;
-                  // 1. Update the UI state IMMEDIATELY for the Live Preview
                   setConfig(prev => ({ ...prev, mainColor: newColor }));
-
-                  // 2. Optional: Only call the DB save if you aren't sliding the picker too fast
-                  updateConfig({ mainColor: newColor });
+                  saveUpdate({ mainColor: newColor }); // Protect with Auth
                 }}
                 className="w-12 h-12 bg-transparent border-none outline-none cursor-pointer rounded-full"
               />
@@ -109,11 +127,11 @@ export default function DashboardPage() {
             <BarChart3 size={16} /> Bot Performance
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-black/40 rounded-2xl border border-white/5 hover:border-orange-500/30 transition-colors">
+            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
               <p className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Total Conversations</p>
               <p className="text-2xl font-bold text-white mt-1">{stats.conversations.toLocaleString()}</p>
             </div>
-            <div className="p-4 bg-black/40 rounded-2xl border border-white/5 hover:border-orange-500/30 transition-colors">
+            <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
               <p className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Avg. Messages</p>
               <p className="text-2xl font-bold text-white mt-1">{stats.avgMessages}</p>
             </div>
@@ -126,22 +144,6 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3 text-green-500 font-mono text-sm tracking-widest uppercase">
               <Code size={16} /> Installation Snippet
             </div>
-            <button
-              onClick={() => copyToClipboard(config.id, true)}
-              className="text-[10px] bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg hover:bg-blue-600/40 transition-all flex items-center gap-2 border border-blue-500/20"
-            >
-              {copiedId ? <Check size={12} /> : <Copy size={12} />}
-              {copiedId ? "ID Copied!" : "Copy Bot ID"}
-            </button>
-            <button
-        onClick={() => {
-          const script = `<script src="https://https://chatbot-platform-jade.vercel.app//widget.js" data-id="${config.id}"></script>`;
-          navigator.clipboard.writeText(script);
-        }}
-        className="text-[10px] bg-green-600/20 text-green-400 px-3 py-1.5 rounded-lg hover:bg-green-600/40 border border-green-500/20"
-      >
-        Copy Full Script
-      </button>
           </div>
           <div className="relative group">
             <div className="bg-black p-4 rounded-xl border border-white/10 font-mono text-[10px] md:text-xs overflow-x-auto text-gray-400 leading-relaxed">
@@ -176,8 +178,6 @@ export default function DashboardPage() {
             <div style={{ backgroundColor: config.mainColor }} className="w-9 h-9 rounded-xl opacity-20 transition-colors duration-500" />
           </div>
         </div>
-
-        <p className="mt-8 text-gray-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">Mobile-responsive frame</p>
       </div>
     </div>
   );
