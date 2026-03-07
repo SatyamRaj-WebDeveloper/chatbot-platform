@@ -1,4 +1,4 @@
-const Widget = require('../models/Widjet.js');
+const Widget = require('../models/Widjet');
 
 // Save or Update Widget Configuration
 exports.saveConfig = async (req, res) => {
