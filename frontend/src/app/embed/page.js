@@ -21,25 +21,29 @@ function EmbedContent() {
       if (!botId) return;
       try {
         const response = await fetch(`https://chatbot-platform-sgmo.onrender.com/api/widget/config/${botId}`);
-        const data = await response.json();
+        const result = await response.json(); 
         
-        if (data) {
+        // Correctly accessing the nested data from your MongoDB response
+        const botData = result.data || result; 
+  
+        if (botData) {
           setConfig({
-            botName: data.botName,
-            welcomeMessage: data.welcomeMessage,
-            mainColor: data.mainColor,
-            position: data.position || 'right',
-            id: data._id
+            botName: botData.botName || "Support Bot",
+            welcomeMessage: botData.welcomeMessage || "Hi!",
+            mainColor: botData.mainColor || "#3b82f6",
+            position: botData.position || 'right',
+            id: botData._id
           });
           setReady(true);
         }
       } catch (err) {
         console.error("Fetch error:", err);
-        setReady(true); // Default to "Support Bot" if fetch fails so the user sees something
+        setReady(true); 
       }
-    };
-    fetchBotData();
-  }, [botId, setConfig]);
+    }; // End of fetchBotData definition
+  
+    fetchBotData(); // Now it actually runs
+  }, [botId, setConfig]); // Correct closing of useEffect
 
   // Use a full-size transparent div while loading to maintain the iframe size
   if (!ready) return <div className="w-full h-full bg-transparent" />;
