@@ -135,7 +135,7 @@ export default function DashboardPage() {
             </button>
             <button
         onClick={() => {
-          const script = `<script src="https://chatbot-platform-henna.vercel.app/widget.js" data-id="${config.id}"></script>`;
+          const script = `<script src="https://https://chatbot-platform-jade.vercel.app//widget.js" data-id="${config.id}"></script>`;
           navigator.clipboard.writeText(script);
         }}
         className="text-[10px] bg-green-600/20 text-green-400 px-3 py-1.5 rounded-lg hover:bg-green-600/40 border border-green-500/20"
@@ -146,7 +146,7 @@ export default function DashboardPage() {
           <div className="relative group">
             <div className="bg-black p-4 rounded-xl border border-white/10 font-mono text-[10px] md:text-xs overflow-x-auto text-gray-400 leading-relaxed">
               <span className="text-gray-600">&lt;script</span>
-              <span className="text-blue-400"> src</span>=<span className="text-orange-300">"https://chatbot-platform-henna.vercel.app/widget.js"</span>
+              <span className="text-blue-400"> src</span>=<span className="text-orange-300">"https://chatbot-platform-jade.vercel.app/widget.js"</span>
               <span className="text-blue-400"> data-id</span>=<span className="text-green-300">"{config.id}"</span>
               <span className="text-gray-600">&gt;&lt;/script&gt;</span>
             </div>

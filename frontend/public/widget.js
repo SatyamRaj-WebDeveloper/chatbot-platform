@@ -3,7 +3,7 @@
   const botId = scriptTag.getAttribute('data-id');
   
   // Change this to your actual production URL (e.g., https://your-app.vercel.app)
-  const PLATFORM_URL = "https://chatbot-platform-henna.vercel.app"; 
+  const PLATFORM_URL = "https://chatbot-platform-jade.vercel.app/"; 
   
   const iframe = document.createElement('iframe');
   iframe.src = `${PLATFORM_URL}/embed?id=${botId}`;
