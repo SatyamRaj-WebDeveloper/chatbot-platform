@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-    origin: ['https://https://chatbot-platform-jade.vercel.app',
+    origin: ['https://chatbot-platform-jade.vercel.app',
         'http://localhost:3000',
         'null'], // 'null' allows opening local .html files
     methods: ['GET', 'POST'],
