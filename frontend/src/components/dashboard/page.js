@@ -51,8 +51,6 @@ export default function DashboardPage() {
 
   // --- NEW: Protected Update Wrapper ---
   const saveUpdate = (updateData) => {
-    // We pass the auth header to the updateConfig function from context
-    // Ensure your ChatContext.updateConfig is updated to accept headers
     updateConfig(updateData, getAuthHeader());
   };
 

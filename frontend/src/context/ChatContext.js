@@ -10,23 +10,26 @@ export function ChatProvider({ children }) {
     mainColor: "#3b82f6",
     position: 'right',
     avatarUrl: "",
-    id: "" // Start empty
+    id: "" 
   });
 
-  // NEW: Function to load the user's specific bot
+  // Updated: Load user bot for Dashboard
   const fetchUserBot = async (token) => {
     try {
       const res = await fetch('https://chatbot-platform-sgmo.onrender.com/api/widget/user-bot', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
+      
       if (res.ok && data) {
-        setConfig({
-          botName: data.botName,
-          welcomeMessage: data.welcomeMessage,
-          mainColor: data.mainColor,
-          id: data._id // Use the real MongoDB ID
-        });
+        // Use spread to maintain any existing fields
+        setConfig(prev => ({
+          ...prev,
+          botName: data.botName || prev.botName,
+          welcomeMessage: data.welcomeMessage || prev.welcomeMessage,
+          mainColor: data.mainColor || prev.mainColor,
+          id: data._id
+        }));
       }
     } catch (err) {
       console.error("Failed to load bot:", err);
@@ -34,22 +37,22 @@ export function ChatProvider({ children }) {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const isEmbed = window.location.pathname.includes('/embed');
     
-    // If we are in the dashboard and have a token, fetch the real bot
+    // Only fetch for dashboard, Embed Page handles its own fetch via URL ID
     if (!isEmbed && token) {
       fetchUserBot(token);
     }
   }, []);
 
   const updateConfig = async (newConfig, authHeaders = {}) => {
-    // Prevent calling the API if there is no real ID yet
+    // If we're still on a dummy or empty ID, don't hit the API
     if (!config.id || config.id === "dummy-bot-id") return; 
 
     try {
-      const updated = { ...config, ...newConfig };
-      setConfig(updated);
+      // Optimistic Update: Update UI instantly
+      setConfig(prev => ({ ...prev, ...newConfig }));
 
       const response = await fetch(`https://chatbot-platform-sgmo.onrender.com/api/widget/config/${config.id}`, {
         method: 'PUT',
@@ -63,6 +66,7 @@ export function ChatProvider({ children }) {
       if (!response.ok) throw new Error('Failed to update DB');
     } catch (err) {
       console.error("Update Error:", err);
+      // Optional: Revert UI state here if needed
     }
   };
 
